@@ -1,23 +1,45 @@
 {% extends 'todos/base.html' %}
 
-{% block content %}
-
-    <h1>Completed User Page</h1>
-    <br>
-    {% for todo in todos %}
-        {% if todo.important %}<b>{% endif %}
-
-            <a href="{% url 'view_todo' todo.pk %}"><p>{{ todo.title }}</p></a>
-        {% if todo.important %}</b>{% endif %}
-            
-        
-
-    <p>{{todo.memo}}</p>
-    <p>{{todo.important}}</p>
-    <p>{{ todo.date_todo|date:'M d Y H:i' }}</p>
-    <p></p>
-
-
-    {% endfor %}
+{% block head %}
+<style>
+    #imp {
+        background: rgb(245, 147, 147);
+    }
+</style>
 {% endblock %}
 
+{% block content %}
+<div class="container text-center">
+    <h1 class="h1 text-center my-2 mt-5">{{ todos.count }} Completed Todo{{ todos.count|pluralize }}</h1>
+    <br>
+    {% if len > 0 %}
+    <div class="list-group">
+        {% for todo in todos %}
+        {% if todo.important %}
+        <a id="imp" href=" {% url 'view_todo' todo.pk %}" class="list-group-item list-group-item-action" aria-current="true">
+            {% else %}
+            <a href=" {% url 'view_todo' todo.pk %}" class="list-group-item list-group-item-action" aria-current="true">
+                {%endif %}
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ todo.title }}</h5>
+                    <small>{% if todo.important %} Important {% endif %}</small>
+                </div>
+                <p class="mb-1">{{todo.memo|truncatechars:50}}</p>
+                <small>{{ todo.date_todo|date:'M d Y'}}</small>
+            </a>
+
+
+            {% endfor %}
+            </div>
+            {% else %}
+            <h4>Seems like you don't have any todos!</h4>
+            <h4>Create One!</h4>
+    <p></p>
+    <a href="{% url 'create_todo' %}"><button class="btn btn-primary">New Todo</button></a>
+
+    {% endif %}
+
+
+
+</div>
+{% endblock %}

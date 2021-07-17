@@ -1,0 +1,12 @@
+#error{
+    color:rgb(255, 255, 255);
+    background:rgb(255, 107, 107);
+    border-radius: 10px;
+    text-align:center;
+    padding: 8px;
+}
+
+#form{
+    max-width: 600px;
+    margin: 0 auto;
+}

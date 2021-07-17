@@ -1,5 +1,35 @@
 {% extends 'todos/base.html' %}
 
+{% block head %}
+<style>
+    #cont {
+        margin-top: 200px;
+    }
+
+    #txt {
+        width: 50%;
+        max-width: 400px;
+        align-self: center;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>HOME</h1>
+<div class="container-md text-center" id="cont">
+    <h2 class="h1 text-center mx-auto" id="title">Welcome to your TodoWoo!</h2>
+    <p class="text-center" id="txt">Life is fun. But life is also busy. There's a million different things you could be
+        doing.
+        But what matters is <u>what</u> you do.
+        We created <b><em>Todo Woo</em></b> to help you make sense of all of your opportunities and live that life that
+        matters most to you.
+        Your new organized life awaits.</p>
+    <br>
+
+    <form method="GET" action="{% url 'signup_user' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Start</button>
+    </form>
+</div>
+
 {% endblock %}

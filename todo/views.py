@@ -8,9 +8,13 @@ from django.contrib.auth import logout as django_logout
 from .forms import TodoForm
 from .models import Todo
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 def home(request):
-    return render(request, 'todos/home.html')
+    if request.user.is_authenticated:
+        return redirect('current_todos')
+    else:
+        return render(request, 'todos/home.html')
 
 
 def signup_user(request):
@@ -33,6 +37,8 @@ def signup_user(request):
             print('pass didnt match')
             return render(request, 'todos/signup_user.html', {'form': form, 'error': 'Passwords didn\'t match'})
 
+
+@login_required()
 def logout(request):
     if request.method == "POST":
         django_logout(request)
@@ -55,6 +61,8 @@ def login(request):
             django_login(request, user)
             return redirect('current_todos')
 
+
+@login_required()
 def create_todo(request):
 
     if request.method == "GET":
@@ -70,6 +78,7 @@ def create_todo(request):
             return render(request, 'todos/create_todo.html', {'form': TodoForm(), 'error': "Wrong data inserted in the fields. Try again"})
 
 
+@login_required()
 def view_todo(request, todo_pk):
     todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
     if request.method =="GET":
@@ -79,23 +88,32 @@ def view_todo(request, todo_pk):
     else:
         try:
             form = TodoForm(request.POST, instance=todo)
+            print(form.is_valid())
+            print(form.errors)
             form.save()
             return redirect('current_todos')
-        except ValueError:
+        except ValueError as e:
+            print(e)
             return render(request, 'todos/create_todo.html', {'form': TodoForm(), 'error': "Wrong data inserted in the fields. Try again"})
 
 
+@login_required()
 def complete_todo(request, todo_pk):
 
     todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
 
     if request.method == "POST":
-        todo.date_todo = timezone.now()
-        todo.save()
+        if todo.date_todo == None:
+            todo.date_todo = timezone.now()
+            todo.save()
+        else:
+            todo.date_todo = None
+            todo.save()
 
         return redirect('current_todos')
 
 
+@login_required()
 def delete_todo(request, todo_pk):
 
     todo = get_object_or_404(Todo, pk=todo_pk, user=request.user)
@@ -106,24 +124,27 @@ def delete_todo(request, todo_pk):
         return redirect('current_todos')
 
 
+@login_required()
 def current_todos(request):
 
     todos = Todo.objects.filter(
         user=request.user, date_todo=None).order_by('-important','date_created')
 
-    return render(request, 'todos/current_todos.html', {'todos': todos})
+    return render(request, 'todos/current_todos.html', {'todos': todos, 'len': len(todos)})
 
 
+@login_required()
 def completed_todos(request):
 
     todos = Todo.objects.filter(
         user=request.user,).exclude(date_todo=None).order_by('-important', '-date_created')
 
-    return render(request, 'todos/completed_todos.html', {'todos': todos})
+    return render(request, 'todos/completed_todos.html', {'todos': todos, 'len': len(todos)})
 
 
+@login_required()
 def created_todos(request):
 
-    todos = Todo.objects.all(user=request.user).order_by('-date_created')
+    todos = Todo.objects.filter(user=request.user).order_by('-date_created')
 
-    return render(request, 'todos/created_todos.html', {'todos': todos})
+    return render(request, 'todos/created_todos.html', {'todos': todos, 'len': len(todos)})
